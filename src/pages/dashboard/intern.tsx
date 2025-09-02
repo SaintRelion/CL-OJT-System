@@ -7,8 +7,11 @@ import type { AttendanceLog } from "@/models/attendance";
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useDBOperations, useMockSelect } from "@saintrelion/data-access-layer";
+import { useAuth } from "@saintrelion/auth-lib";
 
-export default function InternDashboardPage({ userID }: { userID: number }) {
+export default function InternDashboardPage() {
+  const { user } = useAuth();
+
   const [timedIn, setTimedIn] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<string>("");
@@ -22,8 +25,9 @@ export default function InternDashboardPage({ userID }: { userID: number }) {
   });
 
   const { data: attendanceLogs = [] } = useMockSelect<AttendanceLog>(
-    "AttendanceLog",
+    "AttendanceLogs",
     {
+      filterFn: (log) => log.userID === user.id,
       sortFn: (a, b) =>
         new Date(b.timeDateISO).getTime() - new Date(a.timeDateISO).getTime(),
     },
@@ -77,7 +81,7 @@ export default function InternDashboardPage({ userID }: { userID: number }) {
         setTimedIn(true);
 
         useInsert.mutate({
-          userID: userID,
+          userID: user.id,
           type: "in",
           timeDateISO: currentTime,
           location: location,

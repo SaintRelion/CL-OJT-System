@@ -28,7 +28,7 @@ const LoginPage = () => {
   const handleLogin = () => {
     // Normally you'd call API here, then save returned user
     setUser({
-      id: Date.now(), // fake user id
+      id: 7, // fake user id
       email,
       role,
       department: department,
@@ -76,7 +76,7 @@ const LoginPage = () => {
                   Department Admin
                 </SelectItem>
                 <SelectItem value="adviser">Adviser</SelectItem>
-                <SelectItem value="student">Student</SelectItem>
+                <SelectItem value="intern">Intern</SelectItem>
               </SelectContent>
             </Select>
           </div>
