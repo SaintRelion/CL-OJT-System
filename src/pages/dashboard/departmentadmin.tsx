@@ -1,15 +1,17 @@
 import InternTable from "@/components/tables/interntable";
 import { Calendar } from "@/components/ui/calendar";
 import type { BaseUser } from "@/models/users";
+import { useAuth } from "@saintrelion/auth-lib";
 import { useMockSelect } from "@saintrelion/data-access-layer";
 import { UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 
-export function DepartmentAdminDashboard({ userID }: { userID: number }) {
+export function DepartmentAdminDashboard() {
+  const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   const { data: currentUser } = useMockSelect<BaseUser>("Users", {
-    filterFn: (u) => u.id === userID,
+    filterFn: (u) => u.id === user.id,
   });
 
   const adminDept = currentUser?.[0]?.department;

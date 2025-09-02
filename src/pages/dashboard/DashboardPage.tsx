@@ -7,10 +7,11 @@ import type { UserRole } from "@/models/userrole";
 
 const DashboardPage = () => {
   const { user } = useAuth();
+
   const dashboardPages: Record<string, JSX.Element> = {
-    departmentadmin: <DepartmentAdminDashboard userID={user.id} />,
+    departmentadmin: <DepartmentAdminDashboard />,
     adviser: <AdviserDashboard />,
-    intern: <InternDashboardPage userID={user.id} />,
+    intern: <InternDashboardPage />,
   };
 
   return dashboardPages[user.role as UserRole];
