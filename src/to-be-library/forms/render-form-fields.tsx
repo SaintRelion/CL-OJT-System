@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarFold } from "lucide-react";
+import { CalendarFold, Clock } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -133,6 +133,22 @@ export const RenderFormFields = ({
                   <label htmlFor={fieldName} className="text-sm">
                     {field.label}
                   </label>
+                </div>
+              )}
+
+              {field.type === "time" && (
+                <div className="relative">
+                  <Input
+                    id="time"
+                    type="time"
+                    placeholder="Select a Time"
+                    {...register(fieldName, rules)}
+                    className="pr-10"
+                  />
+                  <Clock
+                    id="time-icon"
+                    className="pointer-events-none absolute top-1/2 right-4 size-4 -translate-y-1/2 text-gray-500"
+                  />
                 </div>
               )}
 

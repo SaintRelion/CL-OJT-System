@@ -113,7 +113,11 @@ export default function InternManagementPage() {
     const intern = interns.find((i) => i.id === id);
     if (!intern) return;
 
-    userUpdate.mutate({ id, updates: { isEnabled: !intern.isEnabled } });
+    userUpdate.mutate({
+      field: "id",
+      value: id,
+      updates: { isEnabled: !intern.isEnabled },
+    });
   };
 
   const handleDelete = (id: string) => userDelete.mutate(id);

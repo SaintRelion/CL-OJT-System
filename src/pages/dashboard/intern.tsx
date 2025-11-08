@@ -6,8 +6,8 @@ import type { AttendanceLog } from "@/models/attendance";
 import { useDBOperations } from "@saintrelion/data-access-layer";
 import { useAuth } from "@saintrelion/auth-lib";
 import { RenderCard } from "@/to-be-library/dynamic-ui/render-card";
-import { GeoViewer } from "@/to-be-library/geofencing/geo-viewer";
-import type { Coords } from "@/to-be-library/geofencing/geo-models";
+import { GeoViewer } from "@/to-be-library/geo/geo-viewer";
+import type { Coords } from "@/to-be-library/geo/geo-models";
 import { LiveClock } from "@/to-be-library/live/live-clock";
 import { CameraCapture } from "@/to-be-library/live/camera-capture";
 import type { Settings } from "@/models/settings";
@@ -19,7 +19,6 @@ export default function InternDashboardPage() {
   let coords: Coords = { lat: 0, lng: 0 };
   function onCoordinateChange(c: Coords) {
     coords = c;
-    console.log(coords);
   }
 
   let liveTime: string = "";
@@ -28,8 +27,6 @@ export default function InternDashboardPage() {
   }
 
   const { useSelect: settingsSelect } = useDBOperations<Settings>("Settings");
-
-  // load settings for current department
   const { data: settingsList = [] } = settingsSelect({
     firebaseOptions: {
       filterField: "department",
@@ -37,19 +34,17 @@ export default function InternDashboardPage() {
     },
   });
 
-  const {
-    useSelect: interInfoSelect,
-    useUpdateByField: internInfoUpdateByField,
-  } = useDBOperations<InternInfo>("InternInfo");
-  const { useSelect: attendanceSelect, useInsert: attendanceInsert } =
-    useDBOperations<AttendanceLog>("AttendanceLog");
-
+  const { useSelect: interInfoSelect, useUpdate: internInfoUpdate } =
+    useDBOperations<InternInfo>("InternInfo");
   const { data: internInfo = [] } = interInfoSelect({
     firebaseOptions: {
-      filterField: "userId",
-      value: user.id,
+      filterField: ["userId"],
+      value: [user.id],
     },
   });
+
+  const { useSelect: attendanceSelect, useInsert: attendanceInsert } =
+    useDBOperations<AttendanceLog>("AttendanceLog");
 
   const { data: attendanceLogs = [] } = attendanceSelect({
     mockOptions: {
@@ -58,8 +53,8 @@ export default function InternDashboardPage() {
         new Date(b.timeDateISO).getTime() - new Date(a.timeDateISO).getTime(),
     },
     firebaseOptions: {
-      filterField: "userID",
-      value: user.id,
+      filterField: ["userID"],
+      value: [user.id],
       // sort: { field: "timeDateISO", direction: "desc" },
     },
   });
@@ -155,8 +150,8 @@ export default function InternDashboardPage() {
                         const updatedRequired = requiredHours + penalty;
                         const updatedRemaining = remainingHours + penalty;
 
-                        if (internInfoUpdateByField)
-                          internInfoUpdateByField.mutate({
+                        if (internInfoUpdate)
+                          internInfoUpdate.mutate({
                             field: "userId",
                             value: user.id,
                             updates: {
@@ -254,17 +249,16 @@ export default function InternDashboardPage() {
 
                         console.log(internInfo[0].remainingHours);
 
-                        if (internInfoUpdateByField)
-                          internInfoUpdateByField.mutate({
-                            field: "userId",
-                            value: user.id,
-                            updates: {
-                              remainingHours: updatedRemaining,
-                              // // Optional: add workedHours field to track progress
-                              // workedHours:
-                              //   (Number(intern.workedHours) || 0) + diffHours,
-                            },
-                          });
+                        internInfoUpdate.mutate({
+                          field: "userId",
+                          value: user.id,
+                          updates: {
+                            remainingHours: updatedRemaining,
+                            // // Optional: add workedHours field to track progress
+                            // workedHours:
+                            //   (Number(intern.workedHours) || 0) + diffHours,
+                          },
+                        });
 
                         alert(
                           `[Work Hours] ${diffHours.toFixed(

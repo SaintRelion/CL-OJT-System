@@ -55,6 +55,10 @@ export interface DateFieldConfig extends BaseFieldConfig {
   type: "date";
 }
 
+export interface TimeFieldConfig extends BaseFieldConfig {
+  type: "time";
+}
+
 export interface SelectFieldConfig extends BaseFieldConfig {
   type: "select";
   options: Record<string, string>;

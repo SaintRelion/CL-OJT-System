@@ -6,14 +6,14 @@ import { RenderFormFields } from "@/to-be-library/forms/render-form-fields";
 import { RenderFormButton } from "@/to-be-library/forms/render-form-button";
 import { RenderCard } from "@/to-be-library/dynamic-ui/render-card";
 
+const authenticateFields = buildFieldsFromModel({
+  email: { type: "email", label: "Email" },
+  password: { type: "password", label: "Password" },
+});
+
 const LoginPage = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
-
-  const authenticateFields = buildFieldsFromModel({
-    email: { type: "email", label: "Email" },
-    password: { type: "password", label: "Password" },
-  });
 
   const handleLogin = async (data: Record<string, string>) => {
     // Normally you'd call API here, then save returned user
@@ -28,7 +28,7 @@ const LoginPage = () => {
           navigate("/departmentadvisers"); // redirect to dashboard
         else navigate("/");
 
-        console.log(loggedInUser.createdAt.toDate());
+        console.log(loggedInUser.createdAt);
       },
     );
 
