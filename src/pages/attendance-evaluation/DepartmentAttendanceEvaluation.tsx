@@ -248,7 +248,7 @@ export default function DepartmentAttendanceEvaluation() {
   if (!departmentSettings)
     return (
       <h5 className="text-sm text-gray-600 italic">
-        No department settings found
+        No department settings found (navigate to Settings page and Save)
       </h5>
     );
 
