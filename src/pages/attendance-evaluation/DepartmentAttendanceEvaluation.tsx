@@ -124,10 +124,10 @@ export default function DepartmentAttendanceEvaluation() {
 
   const markExisting = async (
     log: Attendance,
+    logsForTheDay: Attendance[], // all logs for this user/date
     attribute: "excused" | "tardy" | "",
   ) => {
     const internInfo = interns.find((i) => i.userId === log.userId);
-
     if (!internInfo) return;
 
     await updateAttendance.run({
@@ -135,9 +135,9 @@ export default function DepartmentAttendanceEvaluation() {
       payload: { evaluated: true, attribute },
     });
 
-    let workedHours = 0;
+    let finalRemainingHours = parseFloat(internInfo.remainingHours);
 
-    // Find the next slot log for pairing
+    // ---- Calculate worked hours based on paired slots ----
     const pairedSlotType =
       log.type === "time-in"
         ? "break-out"
@@ -146,61 +146,50 @@ export default function DepartmentAttendanceEvaluation() {
           : null;
 
     if (pairedSlotType) {
-      const pairedLog = attendance.find(
-        (a) =>
-          a.userId === log.userId &&
-          a.type === pairedSlotType &&
-          new Date(a.createdAt) > new Date(log.createdAt),
+      const pairedLog = logsForTheDay.find(
+        (l) => l.type === pairedSlotType && !l.evaluated,
       );
 
       if (pairedLog && !pairedLog.evaluated) {
-        const diffMs =
-          new Date(pairedLog.createdAt).getTime() -
-          new Date(log.createdAt).getTime();
-        workedHours = diffMs / 3600000; // convert ms → hours
+        const pairedLogToDate = toDate(pairedLog.createdAt);
+        const logToDate = toDate(log.createdAt);
 
-        // Cap to departmentSettings.timeIn
-        workedHours = Math.min(
-          workedHours,
-          parseFloat(departmentSettings.timeIn),
-        );
-
-        // Update remainingHours
-        await updateInternInfo.run({
-          id: internInfo.id,
-          payload: {
-            remainingHours: (
-              parseFloat(internInfo.remainingHours) + workedHours
-            ).toString(),
-          },
-        });
+        if (pairedLogToDate && logToDate) {
+          const diffMs = pairedLogToDate.getTime() - logToDate.getTime();
+          const workedHours = Math.ceil(diffMs / 3600000); // round up
+          finalRemainingHours -= workedHours; // subtract worked hours
+        }
       }
     }
 
+    // ---- Apply tardy/excused penalties ----
     if (attribute === "tardy") {
       const newTardiness = parseInt(internInfo.tardinessCount) + 1;
       const addedHours = getTardinessPenaltyHours(newTardiness);
+      finalRemainingHours += addedHours;
 
+      // update tardiness count too
       await updateInternInfo.run({
         id: internInfo.id,
         payload: {
+          remainingHours: finalRemainingHours.toString(),
           tardinessCount: newTardiness.toString(),
-          remainingHours: (
-            parseInt(internInfo.remainingHours) + addedHours
-          ).toString(),
         },
       });
-    } else if (attribute === "excused") {
-      await updateInternInfo.run({
-        id: internInfo.id,
-        payload: {
-          remainingHours: (
-            parseInt(internInfo.remainingHours) +
-            ABSENCE_RULES.excused.additionalHours
-          ).toString(),
-        },
-      });
+      return; // done
     }
+
+    if (attribute === "excused") {
+      finalRemainingHours += ABSENCE_RULES.excused.additionalHours;
+    }
+
+    // ---- Single update call ----
+    await updateInternInfo.run({
+      id: internInfo.id,
+      payload: {
+        remainingHours: finalRemainingHours.toString(),
+      },
+    });
   };
 
   const createSlot = async (
@@ -438,14 +427,14 @@ export default function DepartmentAttendanceEvaluation() {
                           <div className="flex gap-2">
                             <Button
                               size="sm"
-                              onClick={() => markExisting(log, "tardy")}
+                              onClick={() => markExisting(log, logs, "tardy")}
                             >
                               Tardy
                             </Button>
                             <Button
                               size="sm"
                               variant="secondary"
-                              onClick={() => markExisting(log, "excused")}
+                              onClick={() => markExisting(log, logs, "excused")}
                             >
                               Excuse
                             </Button>
@@ -463,7 +452,7 @@ export default function DepartmentAttendanceEvaluation() {
                           <Button
                             size="sm"
                             className="bg-green-600"
-                            onClick={() => markExisting(log, "")}
+                            onClick={() => markExisting(log, logs, "")}
                           >
                             Allow
                           </Button>
