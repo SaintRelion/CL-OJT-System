@@ -339,6 +339,11 @@ export default function DepartmentAttendanceEvaluation() {
                               </div>
                             </div>
 
+                            {/* Location */}
+                            <div className="text-muted-foreground text-xs">
+                              Lat: {log.location[0]}, Lng: {log.location[1]}
+                            </div>
+
                             {/* Status */}
                             {!log.evaluated ? (
                               <span className="rounded-md bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">
@@ -461,6 +466,11 @@ export default function DepartmentAttendanceEvaluation() {
                             <span className="text-muted-foreground ml-2 text-xs">
                               {formatReadableDateTime(log.createdAt)}
                             </span>
+                          </div>
+
+                          {/* Location */}
+                          <div className="text-muted-foreground text-xs">
+                            Lat: {log.location[0]}, Lng: {log.location[1]}
                           </div>
 
                           {/* Status */}
