@@ -19,7 +19,7 @@ import { PublicLayout } from "./layout/PublicLayout";
 import BaseLayout from "./layout/BaseLayout";
 import AdminLoginPage from "./pages/authentication/AdminLoginPage";
 import DepartmentAttendanceEvaluation from "./pages/attendance-evaluation/DepartmentAttendanceEvaluation";
-import AccountPage from "./pages/account/AccountPage";
+// import AccountPage from "./pages/account/AccountPage";
 
 roleLayoutMap[""] = {
   redirect: "/",
@@ -81,12 +81,12 @@ registerGroupAppRoutes({
       label: "Attendance",
       allowedRoles: ["departmentadviser"],
     },
-    {
-      path: "account",
-      element: <AccountPage />,
-      label: "Account",
-      allowedRoles: ["departmentadviser"],
-    },
+    // {
+    //   path: "account",
+    //   element: <AccountPage />,
+    //   label: "Account",
+    //   allowedRoles: ["departmentadviser"],
+    // },
     {
       path: "settings",
       element: <SettingsPage />,
@@ -118,12 +118,12 @@ registerGroupAppRoutes({
       label: "Attendance Record",
       allowedRoles: ["intern"],
     },
-    {
-      path: "account",
-      element: <AccountPage />,
-      label: "Account",
-      allowedRoles: ["intern"],
-    },
+    // {
+    //   path: "account",
+    //   element: <AccountPage />,
+    //   label: "Account",
+    //   allowedRoles: ["intern"],
+    // },
   ],
 });
 
