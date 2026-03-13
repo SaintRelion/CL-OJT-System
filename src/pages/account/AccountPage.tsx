@@ -4,9 +4,9 @@ import {
   query,
   where,
   getDocs,
-  updateDoc,
-  doc,
-  getDoc,
+  // updateDoc,
+  // doc,
+  // getDoc,
 } from "firebase/firestore";
 
 import type { User } from "@/models/User";
@@ -19,7 +19,7 @@ import {
   RenderFormButton,
   RenderFormField,
 } from "@saintrelion/forms";
-import { toast } from "@saintrelion/notifications";
+// import { toast } from "@saintrelion/notifications";
 import {
   Dialog,
   DialogContent,
@@ -29,26 +29,26 @@ import {
 } from "@/components/ui/dialog";
 import { Department } from "@/model_types/department";
 
-// Just to get change password work in old library
-async function hashPassword(password: string, salt?: string) {
-  const enc = new TextEncoder();
-  const actualSalt =
-    salt ||
-    crypto
-      .getRandomValues(new Uint8Array(16))
-      .reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
-  const data = enc.encode(password + actualSalt);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-  return { hash: hashHex, salt: actualSalt };
-}
-async function verifyPassword(password: string, hash: string, salt: string) {
-  const result = await hashPassword(password, salt);
-  return result.hash === hash;
-}
+// // Just to get change password work in old library
+// async function hashPassword(password: string, salt?: string) {
+//   const enc = new TextEncoder();
+//   const actualSalt =
+//     salt ||
+//     crypto
+//       .getRandomValues(new Uint8Array(16))
+//       .reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
+//   const data = enc.encode(password + actualSalt);
+//   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+//   const hashArray = Array.from(new Uint8Array(hashBuffer));
+//   const hashHex = hashArray
+//     .map((b) => b.toString(16).padStart(2, "0"))
+//     .join("");
+//   return { hash: hashHex, salt: actualSalt };
+// }
+// async function verifyPassword(password: string, hash: string, salt: string) {
+//   const result = await hashPassword(password, salt);
+//   return result.hash === hash;
+// }
 
 function DisplayField({ label, value }: { label: string; value: string }) {
   return (
@@ -113,39 +113,39 @@ export default function AccountPage() {
     }
   };
 
-  const handleChangePassword = async (data: Record<string, string>) => {
-    const { currentPassword, newPassword } = data;
+  // const handleChangePassword = async (data: Record<string, string>) => {
+  //   const { currentPassword, newPassword } = data;
 
-    const ref = doc(db, "ojt_User", user.id);
-    const snap = await getDoc(ref);
+  //   const ref = doc(db, "ojt_User", user.id);
+  //   const snap = await getDoc(ref);
 
-    const userData = snap.data();
-    if (userData) {
-      const valid = await verifyPassword(
-        currentPassword,
-        userData.passwordHash,
-        userData.salt,
-      );
+  //   const userData = snap.data();
+  //   if (userData) {
+  //     const valid = await verifyPassword(
+  //       currentPassword,
+  //       userData.passwordHash,
+  //       userData.salt,
+  //     );
 
-      if (!valid) {
-        toast.error("Current password incorrect");
-        return;
-      }
+  //     if (!valid) {
+  //       toast.error("Current password incorrect");
+  //       return;
+  //     }
 
-      const { hash, salt } = await hashPassword(newPassword);
+  //     const { hash, salt } = await hashPassword(newPassword);
 
-      await updateDoc(ref, {
-        passwordHash: hash,
-        salt,
-      });
+  //     await updateDoc(ref, {
+  //       passwordHash: hash,
+  //       salt,
+  //     });
 
-      toast.success("Password updated");
+  //     toast.success("Password updated");
 
-      setPasswordDialogOpen(false);
-    } else {
-      toast.error("No record found?");
-    }
-  };
+  //     setPasswordDialogOpen(false);
+  //   } else {
+  //     toast.error("No record found?");
+  //   }
+  // };
 
   if (!user) return null;
 
@@ -294,7 +294,7 @@ export default function AccountPage() {
 
               <RenderFormButton
                 buttonLabel="Update Password"
-                onSubmit={handleChangePassword}
+                // onSubmit={handleChangePassword}
               />
             </RenderForm>
           </DialogContent>
