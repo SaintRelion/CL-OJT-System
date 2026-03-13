@@ -9,6 +9,26 @@ import {
   getDoc,
 } from "firebase/firestore";
 
+import type { User } from "@/models/User";
+import { useCurrentUser } from "@saintrelion/auth-lib";
+import { useResourceLocked } from "@saintrelion/data-access-layer";
+import type { InternInfo } from "@/models/InternInfo";
+import { db } from "@saintrelion/auth-lib/dist/lib/firebase-connection";
+import {
+  RenderForm,
+  RenderFormButton,
+  RenderFormField,
+} from "@saintrelion/forms";
+import { toast } from "@saintrelion/notifications";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Department } from "@/model_types/department";
+
 // Just to get change password work in old library
 async function hashPassword(password: string, salt?: string) {
   const enc = new TextEncoder();
@@ -29,26 +49,6 @@ async function verifyPassword(password: string, hash: string, salt: string) {
   const result = await hashPassword(password, salt);
   return result.hash === hash;
 }
-
-import type { User } from "@/models/User";
-import { useCurrentUser } from "@saintrelion/auth-lib";
-import { useResourceLocked } from "@saintrelion/data-access-layer";
-import type { InternInfo } from "@/models/InternInfo";
-import { db } from "@saintrelion/auth-lib/dist/lib/firebase-connection";
-import {
-  RenderForm,
-  RenderFormButton,
-  RenderFormField,
-} from "@saintrelion/forms";
-import { toast } from "@saintrelion/notifications";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Department } from "@/model_types/department";
 
 function DisplayField({ label, value }: { label: string; value: string }) {
   return (
@@ -86,7 +86,8 @@ export default function AccountPage() {
   const handleUpdate = async (data: Record<string, string>) => {
     console.log(data);
 
-    const { program, requiredHours, trainingCompany, ...userData } = data;
+    const { program, trainingCompany, ...userData } = data;
+    delete userData.requiredHours;
 
     await updateUser.run({ id: user.id, payload: userData });
 
