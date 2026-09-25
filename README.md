@@ -2,111 +2,58 @@
 
 OJTLOG is a role-based On-the-Job Training (OJT) attendance and management system built with React, TypeScript, Vite, Firebase/Firestore, and reusable `@saintrelion/*` libraries.
 
-It provides dedicated workflows for administrators, department advisers, and interns, covering account and intern management, attendance logging and evaluation, OJT-hour tracking, accomplishments, and reports.
+It provides workflows for **administrators, department advisers, and interns**, including attendance, OJT-hour tracking, evaluations, accomplishments, reports, and account management.
 
-> [!IMPORTANT]
-> **Legacy SaintRelion library notice**
->
-> This project uses an older generation of my `@saintrelion/*` libraries. These packages are now **deprecated and no longer actively supported** while I develop a newer framework/library architecture.
->
-> OJTLOG uses the libraries' **Firebase client providers**, which were intended for rapid online development and prototyping. This is why some authentication and data-access implementation is visible in the frontend.
->
-> The same library architecture also supported a **local mock provider** for development and a **generic REST API provider** for production-oriented deployments, allowing authentication, authorization, data access, and sensitive business logic to remain server-side. The API provider is backend-framework agnostic.
->
-> The Firebase-provider implementation in this archived project should therefore **not** be treated as a recommended production security architecture.
+> **Legacy project:** This archived project uses an older generation of my `@saintrelion/*` libraries, which are now deprecated. OJTLOG uses their Firebase provider for rapid online development/prototyping. The same library architecture also supported a local mock provider and a generic REST API provider for production-oriented deployments.
 
 ## Features
 
-### Administrator
-
-- Dedicated administrator portal
-- Register and manage department advisers
-- Register and manage interns
-- Manage account information
-
-### Department adviser
-
-- Department dashboard and attendance monitoring
-- Manage assigned interns
-- Review and evaluate attendance records
-- Configure department attendance settings
-- Track intern OJT progress
-- Manage account information
-
-### Intern
-
-- Four-step attendance workflow: **Time In → Break Out → Break In → Time Out**
-- Attendance history and evaluation status
-- OJT-hour/progress tracking
-- Accomplishment entries
-- Attendance and DTR reports
-- Account management
-
-Attendance records can include timestamps, location information, and captured images depending on browser permissions and the workflow being used.
+- **Administrator:** manage department advisers, interns, and accounts
+- **Department adviser:** monitor attendance, manage assigned interns, evaluate records, configure attendance settings, and track OJT progress
+- **Intern:** four-step attendance (`Time In → Break Out → Break In → Time Out`), attendance history, OJT-hour tracking, accomplishments, DTR/reports, and account management
+- Attendance can include timestamps, location information, and captured images depending on permissions and workflow
 
 ## Tech stack
 
-- **Frontend:** React 19, TypeScript, Vite
-- **UI:** Tailwind CSS, Radix UI, Lucide
-- **Data service:** Firebase + Cloud Firestore
-- **Data fetching:** TanStack Query
-- **Maps / location:** Leaflet, React Leaflet, Geolib
-- **PWA:** Vite PWA
-- **Package manager:** pnpm
-- **Reusable libraries:** `@saintrelion/auth-lib`, `@saintrelion/data-access-layer`, `@saintrelion/forms`, `@saintrelion/routers`, `@saintrelion/notifications`, and other `@saintrelion/*` packages
-
-## Architecture
+React 19 · TypeScript · Vite · Firebase/Firestore · TanStack Query · Tailwind CSS · Leaflet · Vite PWA · pnpm · `@saintrelion/*`
 
 ```text
-React / TypeScript UI
-        │
-        ├── @saintrelion/auth-lib
-        ├── @saintrelion/data-access-layer
-        ├── @saintrelion/forms
-        ├── @saintrelion/routers
-        └── other @saintrelion packages
-        │
-        ▼
+React / TypeScript
+       ↓
+@saintrelion/* libraries
+       ↓
 Firebase provider
-        │
-        ▼
+       ↓
 Cloud Firestore
 ```
-
-This archived version configures authentication and data access in Firebase mode. The application itself is organized around reusable pages, components, models, repositories/resources, role-based routing, and shared framework packages.
 
 ## Setup
 
 ### Requirements
 
-- Node.js 22 or a compatible current version
+- Node.js 22
 - pnpm
 - Git
 - A Firebase project
-- Access to the private/scoped `@saintrelion/*` packages used by this project
+- Access to the private `@saintrelion/*` packages
 
-The project `.npmrc` should contain the package registry without a committed access token:
+### Private package access
+
+The required SaintRelion package keys/tokens are **not included in this repository**. Contact the developer to request access to the required keys.
+
+Keep the project `.npmrc` free of tokens:
 
 ```ini
 @saintrelion:registry=https://npm.pkg.github.com
 ```
 
-Configure GitHub Packages authentication in your **user-level** pnpm/npm configuration.
+Configure GitHub Packages authentication in your user-level pnpm/npm configuration using the key provided by the developer.
 
-### 1. Configure Firebase
+### Firebase
 
-Create or select a Firebase project, then:
+Create/select a Firebase project, add a Web App, and create a Cloud Firestore database.
 
-1. Add a **Web App**.
-2. Open **Project Settings → General → Your apps**.
-3. Copy the Firebase web-app configuration.
-4. Create a **Cloud Firestore** database.
-
-Firestore collections do not need to be created manually. They are created as the application writes its records.
-
-### 2. Configure environment variables
-
-Create `.env` in the project root:
+Create `.env` from `.env.example`:
 
 ```env
 VITE_FIREBASE_API_KEY=
@@ -118,11 +65,9 @@ VITE_FIREBASE_APP_ID=
 VITE_FIREBASE_MEASUREMENT_ID=
 ```
 
-Fill these values using the Firebase Web App configuration.
+Use your Firebase Web App configuration for these values. Do not commit `.env`.
 
-Do **not** commit `.env`. Use `.env.example` as the repository template.
-
-### 3. Install and run
+### Run locally
 
 ```bash
 pnpm install
@@ -131,118 +76,60 @@ pnpm dev
 
 Use the URL printed by Vite. The restored local configuration may use port `5174`.
 
-## First administrator setup
+## First administrator
 
-A fresh Firestore database contains no OJTLOG users. The normal registration UI creates **intern** and **department adviser** accounts, so the first administrator must be bootstrapped separately.
+A fresh Firestore database has no OJTLOG users. Use the temporary `/setup-admin` restoration route to create the first administrator.
 
-Use the temporary `FirstAdminSetup.tsx` page included for restoration. It uses the same legacy authentication provider as the application:
+After creating it:
 
-```ts
-await auth.register(
-  {
-    firstName,
-    lastName,
-    username,
-    email,
-    isEnabled: true,
-    roles: ["admin"],
-    role: "admin",
-  },
-  password,
-);
-```
-
-After the account is created:
-
-1. Remove the temporary first-admin setup page/route.
+1. Remove/disable the temporary first-admin setup page and route.
 2. Open `/admin/login`.
-3. Sign in with the new administrator account.
+3. Sign in with the administrator account.
 4. Register department advisers and interns through the Admin dashboard.
 
-> [!WARNING]
-> Do not leave the first-admin bootstrap route publicly accessible. It is only intended to initialize an empty development/restoration database.
+> **Important:** `/setup-admin` is only for initializing an empty development/restoration database. Do not leave it publicly accessible.
 
-Administrators should use `/admin/login`. The archived authentication flow may also accept administrator credentials through the regular instructor/adviser login interface; this is a known legacy limitation rather than the intended Admin login flow.
-
-## Typical workflow
-
-```text
-Firebase + Firestore setup
-        ↓
-Configure .env
-        ↓
-Run OJTLOG
-        ↓
-Bootstrap first Admin
-        ↓
-Admin registers Advisers / Interns
-        ↓
-Adviser manages attendance and OJT progress
-        ↓
-Intern records attendance and accomplishments
-```
+Regular interns and department advisers use `/login`.
 
 ## Docker
 
-The application can be built as a static Vite application and served through Nginx. Node/pnpm is used during the build stage; the generated `dist` files are served by Nginx at runtime.
+Build and run the application with:
 
 ```bash
 docker compose up -d --build
 ```
 
-With the provided Docker configuration:
+Then open:
 
 ```text
 http://localhost:8080
 ```
 
-Firebase `VITE_*` values are frontend build-time configuration and must be available when the Vite build runs.
+Firebase `VITE_*` values are needed during the Vite build. The private GitHub Packages token is supplied through the configured BuildKit secret and must not be committed to `.npmrc` or passed as a Docker `ARG`.
 
-The GitHub Packages token should be supplied to the Docker build through the configured BuildKit secret. Do **not** commit it to `.npmrc`, copy it into the image, or pass it as a Docker `ARG`.
-
-## Project structure
-
-```text
-src/
-├── components/       Reusable application components and dialogs
-├── layout/           Public and authenticated layouts
-├── lib/              Firebase/client utilities
-├── model_types/      Shared model/type definitions
-├── models/           Application data models
-├── pages/            Role-specific application screens
-├── repositories/     Resource/data registrations
-├── navigations.tsx   Role-based routes
-└── sr-config.tsx     SaintRelion provider configuration
-```
-
-
-## Application routes
-
-After starting OJTLOG, use these entry points:
+## Main routes
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Main application entry point |
-| `/login` | Regular login for interns and department advisers |
-| `/admin/login` | Dedicated administrator login |
-| `/setup-admin` | Temporary first-administrator bootstrap page added for restoration |
+| `/` | Main application |
+| `/login` | Intern/adviser login |
+| `/admin/login` | Administrator login |
+| `/setup-admin` | Temporary first-admin restoration route |
 
-For a fresh installation, open `/setup-admin` first and create the initial administrator. After the account is created, remove or disable the bootstrap route and continue through `/admin/login`. Department advisers and interns use the regular login flow.
+## Security notes
 
-> [!WARNING]
-> `/setup-admin` is a temporary restoration route. Do not leave it publicly accessible after the first administrator has been created.
+This repository is preserved as an **archived portfolio project**. The Firebase provider in this version was intended for rapid development/prototyping rather than being the recommended production security architecture.
 
-## Security and portfolio notes
-
-This repository is preserved as an archived portfolio project and as an example of an earlier reusable-library architecture.
-
-- The Firebase client provider was intended for rapid development/prototyping, not as the recommended production security model.
-- Production-oriented use of the old SaintRelion architecture could use its generic REST API provider to keep privileged logic server-side.
-- Firebase web configuration does not replace proper access control or Firestore security rules.
-- Never place server credentials or privileged secrets in `VITE_*` variables or frontend code.
-- Do not commit `.env`, GitHub Packages tokens, confidential OJT/student records, or other private client data.
-- Use synthetic or authorized test data for demonstrations and screenshots.
+Do not commit `.env`, package tokens, confidential OJT/student records, or other private client data. Firebase web configuration does not replace proper access control and Firestore Security Rules. Use synthetic or authorized data for demonstrations and screenshots.
 
 ## Status
 
-**Archived / portfolio project.** The legacy `@saintrelion/*` packages used by this version are deprecated and are no longer actively supported. A newer framework/library architecture is being developed separately.
+**Archived / portfolio project.** The legacy `@saintrelion/*` packages used by this version are deprecated and no longer actively supported.
+
+## Author
+
+**June Aurelius Jacinto**  
+Full-Stack Software Developer
+
+GitHub: https://github.com/SaintRelion
+
