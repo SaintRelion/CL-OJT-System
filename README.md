@@ -1,101 +1,73 @@
 # OJTLOG
 
-OJTLOG is a role-based On-the-Job Training (OJT) attendance and management system built with React, TypeScript, Vite, Firebase/Firestore, and reusable `@saintrelion/*` libraries.
+OJTLOG is a role-based On-the-Job Training (OJT) attendance and management system built for **administrators, department advisers, and interns**. It covers attendance, OJT-hour tracking, evaluations, accomplishments, reports, and account management.
 
-It provides workflows for **administrators, department advisers, and interns**, including attendance, OJT-hour tracking, evaluations, accomplishments, reports, and account management.
+> **Project status:** Archived portfolio project. This version uses an older generation of my `@saintrelion/*` libraries, which are now deprecated.
 
-> **Legacy project:** This archived project uses an older generation of my `@saintrelion/*` libraries, which are now deprecated. OJTLOG uses their Firebase provider for rapid online development/prototyping. The same library architecture also supported a local mock provider and a generic REST API provider for production-oriented deployments.
+## Key features
 
-## Features
+- **Four-step attendance** — interns follow `Time In → Break Out → Break In → Time Out`.
+- **Location-aware attendance** — attendance can include timestamps, geolocation information, and captured images depending on permissions and workflow.
+- **OJT-hour tracking** — tracks accumulated internship hours and progress.
+- **Accomplishments and reports** — interns can maintain accomplishment records and DTR/report workflows.
+- **Adviser workflows** — department advisers can monitor attendance, evaluate records, manage assigned interns, configure attendance settings, and track progress.
+- **Administration** — administrators manage department advisers, interns, and accounts.
+- **Role-based access** — separate workflows for administrators, department advisers, and interns.
 
-- **Administrator:** manage department advisers, interns, and accounts
-- **Department adviser:** monitor attendance, manage assigned interns, evaluate records, configure attendance settings, and track OJT progress
-- **Intern:** four-step attendance (`Time In → Break Out → Break In → Time Out`), attendance history, OJT-hour tracking, accomplishments, DTR/reports, and account management
-- Attendance can include timestamps, location information, and captured images depending on permissions and workflow
+## Screenshots
 
-## Tech stack
+> Screenshots can be added from a restored/demo environment using synthetic or authorized data.
 
-React 19 · TypeScript · Vite · Firebase/Firestore · TanStack Query · Tailwind CSS · Leaflet · Vite PWA · pnpm · `@saintrelion/*`
+<!-- Suggested screenshots:
+1. Intern dashboard / attendance
+2. Four-step attendance workflow
+3. Adviser dashboard
+4. OJT hours / progress
+5. DTR or reports
+6. Admin account management
+-->
 
-```text
-React / TypeScript
-       ↓
-@saintrelion/* libraries
-       ↓
-Firebase provider
-       ↓
-Cloud Firestore
-```
+## Technology stack
 
-## Setup
-
-### Requirements
-
-- Node.js 22
+- React 19 + TypeScript
+- Vite
+- Firebase / Firestore
+- TanStack Query
+- Tailwind CSS
+- Leaflet
+- Vite PWA
 - pnpm
-- Git
-- A Firebase project
-- Access to the private `@saintrelion/*` packages
+- Private `@saintrelion/*` libraries
 
-### Private package access
+This version uses the SaintRelion Firebase provider for rapid online development/prototyping. The same library architecture also supported a local mock provider and a generic REST API provider.
 
-The required SaintRelion package keys/tokens are **not included in this repository**. Contact the developer to request access to the required keys.
+## Access to private dependencies
 
-Keep the project `.npmrc` free of tokens:
+This project depends on private `@saintrelion/*` packages. Required access tokens are **not included in the repository**.
 
-```ini
-@saintrelion:registry=https://npm.pkg.github.com
+Contact the developer for the package access required to build the archived project.
+
+## Run with Docker
+
+### 1. Configure Firebase
+
+Create or select a Firebase project with a Web App and Cloud Firestore database.
+
+Create `.env` from the provided `.env.example`:
+
+```powershell
+Copy-Item .env.example .env
 ```
 
-Configure GitHub Packages authentication in your user-level pnpm/npm configuration using the key provided by the developer.
+Fill in `.env` using your Firebase Web App configuration.
 
-### Firebase
+### 2. Configure private package access
 
-Create/select a Firebase project, add a Web App, and create a Cloud Firestore database.
+The project depends on private `@saintrelion/*` packages hosted on GitHub Packages. Contact the developer for the required package access, then expose the provided credential for the Docker build.
 
-Create `.env` from `.env.example`:
+### 3. Build and run
 
-```env
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
-VITE_FIREBASE_MEASUREMENT_ID=
-```
-
-Use your Firebase Web App configuration for these values. Do not commit `.env`.
-
-### Run locally
-
-```bash
-pnpm install
-pnpm dev
-```
-
-Use the URL printed by Vite. The restored local configuration may use port `5174`.
-
-## First administrator
-
-A fresh Firestore database has no OJTLOG users. Use the temporary `/setup-admin` restoration route to create the first administrator.
-
-After creating it:
-
-1. Remove/disable the temporary first-admin setup page and route.
-2. Open `/admin/login`.
-3. Sign in with the administrator account.
-4. Register department advisers and interns through the Admin dashboard.
-
-> **Important:** `/setup-admin` is only for initializing an empty development/restoration database. Do not leave it publicly accessible.
-
-Regular interns and department advisers use `/login`.
-
-## Docker
-
-Build and run the application with:
-
-```bash
+```powershell
 docker compose up -d --build
 ```
 
@@ -105,26 +77,80 @@ Then open:
 http://localhost:8080
 ```
 
-Firebase `VITE_*` values are needed during the Vite build. The private GitHub Packages token is supplied through the configured BuildKit secret and must not be committed to `.npmrc` or passed as a Docker `ARG`.
+Firebase `VITE_*` values are included during the Vite build, while the private package credential is supplied through the configured BuildKit secret.
 
-## Main routes
+## First administrator
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Main application |
-| `/login` | Intern/adviser login |
-| `/admin/login` | Administrator login |
-| `/setup-admin` | Temporary first-admin restoration route |
+A fresh Firestore database has no OJTLOG users. Use the temporary restoration route:
 
-## Security notes
+```text
+/setup-admin
+```
 
-This repository is preserved as an **archived portfolio project**. The Firebase provider in this version was intended for rapid development/prototyping rather than being the recommended production security architecture.
+Create the first administrator, then sign in through:
 
-Do not commit `.env`, package tokens, confidential OJT/student records, or other private client data. Firebase web configuration does not replace proper access control and Firestore Security Rules. Use synthetic or authorized data for demonstrations and screenshots.
+```text
+/admin/login
+```
 
-## Status
+From the Admin dashboard, department adviser and intern accounts can then be registered. Regular interns and advisers use `/login`.
 
-**Archived / portfolio project.** The legacy `@saintrelion/*` packages used by this version are deprecated and no longer actively supported.
+Remove or disable `/setup-admin` after initializing the database.
+
+## Local development
+
+Use this setup when running or modifying OJTLOG directly instead of using Docker.
+
+### Requirements
+
+- Node.js 22
+- pnpm / Corepack
+- Git
+- A Firebase project
+- Access to the private `@saintrelion/*` packages
+
+### 1. Configure private package access
+
+The project uses private `@saintrelion/*` packages hosted on GitHub Packages. Configure authentication using the credential provided by the developer:
+
+```powershell
+pnpm config set --global "//npm.pkg.github.com/:_authToken" "YOUR_TOKEN"
+```
+
+The project `.npmrc` already defines the `@saintrelion` package registry.
+
+### 2. Configure Firebase
+
+Create or select a Firebase project with a Web App and Cloud Firestore database.
+
+Create a local `.env` from the provided `.env.example`:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Fill in `.env` using your Firebase Web App configuration.
+
+### 3. Install dependencies
+
+```powershell
+corepack enable
+pnpm install
+```
+
+### 4. Start the development server
+
+```powershell
+pnpm dev
+```
+
+Open the URL printed by Vite. The restored local configuration may use:
+
+```text
+http://localhost:5174
+```
+
+For a fresh Firestore database, complete the **First administrator** setup above.
 
 ## Author
 
@@ -132,4 +158,3 @@ Do not commit `.env`, package tokens, confidential OJT/student records, or other
 Full-Stack Software Developer
 
 GitHub: https://github.com/SaintRelion
-
